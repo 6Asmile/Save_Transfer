@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ListView?>
+<?import javafx.scene.control.ProgressBar?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+
+<BorderPane prefHeight="500.0" prefWidth="700.0" xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.jsafe.client.MainController">
+
+    <!-- 顶部工具栏 -->
+    <top>
+        <HBox spacing="10" style="-fx-background-color: #eee; -fx-padding: 10;">
+            <Button text="📤 上传文件" onAction="#onUploadClick"
+                    style="-fx-background-color: #28a745; -fx-text-fill: white;"/>
+            <Button text="🔄 刷新列表" onAction="#onRefreshClick" />
+        </HBox>
+    </top>
+
+    <!-- 中间：服务器文件列表 -->
+    <center>
+        <VBox spacing="5" style="-fx-padding: 10;">
+            <Label text="服务器文件列表 (server_storage)" style="-fx-font-weight: bold;"/>
+            <ListView fx:id="serverFileListView" VBox.vgrow="ALWAYS"/>
+        </VBox>
+    </center>
+
+    <!-- 底部：状态栏与日志 -->
+    <bottom>
+        <VBox spacing="5" style="-fx-padding: 10; -fx-background-color: #f8f9fa;">
+            <HBox spacing="10" alignment="CENTER_LEFT">
+                <Label text="上传进度:"/>
+                <ProgressBar fx:id="progressBar" prefWidth="300.0" progress="0.0"/>
+                <Label fx:id="statusLabel" text="就绪"/>
+            </HBox>
+            <TextArea fx:id="logArea" prefHeight="80.0" editable="false"
+                      style="-fx-font-family: 'Consolas';"/>
+        </VBox>
+    </bottom>
+</BorderPane>
