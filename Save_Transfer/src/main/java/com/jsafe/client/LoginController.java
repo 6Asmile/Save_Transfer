@@ -98,6 +98,10 @@ public class LoginController {
     }
     @FXML
     public void initialize() {
+        // 优先填入配置文件里的 IP
+        if (!NetworkManager.DEFAULT_SERVER_IP.isEmpty()) {
+            ipField.setText(NetworkManager.DEFAULT_SERVER_IP);
+        }
         // 界面打开时，自动在后台搜一下
         new Thread(() -> {
             String ip = UDPClient.searchServer();

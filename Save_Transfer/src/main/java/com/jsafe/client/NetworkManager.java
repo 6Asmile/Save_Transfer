@@ -15,12 +15,13 @@ import java.nio.charset.StandardCharsets;
  * 负责维护唯一的 Socket 连接，避免每次操作都重新连
  */
 public class NetworkManager {
+
     private static final NetworkManager INSTANCE = new NetworkManager();
     private Socket socket;
     private DataInputStream dis;
     private DataOutputStream dos;
     private boolean isConnected = false;
-
+    public static String DEFAULT_SERVER_IP = "";
     private NetworkManager() {}
 
     public static NetworkManager getInstance() {
