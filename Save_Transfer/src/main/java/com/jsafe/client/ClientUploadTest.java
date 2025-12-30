@@ -50,7 +50,7 @@ public class ClientUploadTest {
 
             // 5. 开始上传 (RandomAccessFile + AES)
             try (RandomAccessFile raf = new RandomAccessFile(file, "r")) {
-                raf.seek(offset); // 👈 核心：跳过已上传部分
+                raf.seek(offset); //  核心：跳过已上传部分
 
                 byte[] buffer = new byte[1024*128]; // 4KB 缓冲区
                 int len;
@@ -70,10 +70,10 @@ public class ClientUploadTest {
                     progress += len;
                     System.out.print("\rUploading... " + (progress * 100 / file.length()) + "%");
 
-                    // ⚠️ 模拟断网测试：取消下面的注释，在上传到 50% 时强行中断
+                    // ⚠ 模拟断网测试：取消下面的注释，在上传到 50% 时强行中断
                     /*
                     if (progress > file.length() / 2) {
-                        System.out.println("\n💥 模拟网络中断！停止发送！");
+                        System.out.println("\n 模拟网络中断！停止发送！");
                         break; // 退出循环，关闭 Socket
                     }
                     */

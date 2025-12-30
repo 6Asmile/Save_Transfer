@@ -25,8 +25,10 @@ public class ServerMain {
     private static final ExecutorService threadPool = Executors.newFixedThreadPool(10);
 
     public static void main(String[] args) {
+        // 启动 UDP 监听
+        UDPProvider.start();
         try (ServerSocket serverSocket = new ServerSocket(PORT)) {
-            System.out.println("✅ Server started on port " + PORT);
+            System.out.println(" Server started on port " + PORT);
 
             while (true) {
                 // 阻塞等待客户端连接
@@ -181,7 +183,7 @@ public class ServerMain {
                     boolean renamed = tempFile.renameTo(destFile);
                     if (renamed) {
                         // TODO: 这里可以插入数据库 tb_file 记录
-                        System.out.println("✅ 文件已归档至 storage 目录");
+                        System.out.println(" 文件已归档至 storage 目录");
                     }
                 }
 

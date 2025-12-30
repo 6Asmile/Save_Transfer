@@ -22,8 +22,8 @@ public class LoginController {
     private PasswordField passwordField;
     @FXML
     private Label messageLabel;
-    @FXML private TextField ipField; // 绑定控件
-
+    @FXML
+    private TextField ipField; // 绑定控件
     @FXML
     protected void onLoginButtonClick() {
         String u = usernameField.getText();
@@ -93,6 +93,20 @@ public class LoginController {
             } catch (Exception e) {
                 e.printStackTrace();
                 Platform.runLater(() -> messageLabel.setText("连接错误: " + e.getMessage()));
+            }
+        }).start();
+    }
+    @FXML
+    public void initialize() {
+        // 界面打开时，自动在后台搜一下
+        new Thread(() -> {
+            String ip = UDPClient.searchServer();
+            if (ip != null) {
+                // 回到 UI 线程更新输入框
+                Platform.runLater(() -> {
+                    ipField.setText(ip); // 自动填入 IP
+                    // 甚至可以自动把“连接”按钮变绿，或者弹个提示
+                });
             }
         }).start();
     }
