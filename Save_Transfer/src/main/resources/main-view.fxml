@@ -10,7 +10,10 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 
-<BorderPane prefHeight="500.0" prefWidth="700.0" xmlns:fx="http://javafx.com/fxml"
+<?import javafx.scene.control.TextField?>
+<BorderPane prefHeight="500.0" prefWidth="700.0"
+            stylesheets="@style.css"
+            xmlns:fx="http://javafx.com/fxml"
             fx:controller="com.jsafe.client.MainController">
 
     <!-- 顶部工具栏 -->
@@ -18,7 +21,17 @@
         <HBox spacing="10" style="-fx-background-color: #eee; -fx-padding: 10;">
             <Button text="📤 上传文件" onAction="#onUploadClick"
                     style="-fx-background-color: #28a745; -fx-text-fill: white;"/>
+            <!-- 2. 下载  -->
+            <Button text="📥 下载选中" onAction="#onDownloadClick"
+                    style="-fx-background-color: #007bff; -fx-text-fill: white; -fx-font-weight: bold; -fx-cursor: hand;"/>
+
+            <!-- 3. 分享  -->
+            <Button text="🔗 分享给..." onAction="#onShareClick"
+                    style="-fx-background-color: #fd7e14; -fx-text-fill: white; -fx-font-weight: bold; -fx-cursor: hand;"/>
             <Button text="🔄 刷新列表" onAction="#onRefreshClick" />
+            <TextField fx:id="searchField" promptText="🔍 搜索文件名..."
+                       prefWidth="180"
+                       style="-fx-background-radius: 15; -fx-padding: 5 10; -fx-border-color: #ced4da; -fx-border-radius: 15;"/>
         </HBox>
     </top>
 
@@ -35,6 +48,7 @@
         <VBox spacing="5" style="-fx-padding: 10; -fx-background-color: #f8f9fa;">
             <HBox spacing="10" alignment="CENTER_LEFT">
                 <Label text="上传进度:"/>
+                <Label fx:id="speedLabel" text="0 KB/s" />
                 <ProgressBar fx:id="progressBar" prefWidth="300.0" progress="0.0"/>
                 <Label fx:id="statusLabel" text="就绪"/>
             </HBox>

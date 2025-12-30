@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.chart.LineChart?>
+<?import javafx.scene.chart.NumberAxis?>
+<?import javafx.scene.chart.CategoryAxis?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane prefHeight="600.0" prefWidth="900.0" xmlns:fx="http://javafx.com/fxml"
+            fx:controller="com.jsafe.server.ServerController" style="-fx-background-color: #2f3640;">
+
+    <!-- 左侧：在线用户 -->
+    <left>
+        <VBox spacing="10" style="-fx-padding: 15; -fx-background-color: #353b48;">
+            <Label text="👤 在线用户" style="-fx-text-fill: white; -fx-font-weight: bold;"/>
+            <ListView fx:id="userListView" prefWidth="180.0" VBox.vgrow="ALWAYS"
+                      style="-fx-background-color: #2f3640; -fx-control-inner-background: #2f3640; -fx-text-fill: white;"/>
+        </VBox>
+    </left>
+
+    <!-- 中间：实时网速折线图 -->
+    <center>
+        <VBox spacing="10" style="-fx-padding: 15;">
+            <Label text="📈 实时全站带宽 (MB/s)" style="-fx-text-fill: white; -fx-font-weight: bold;"/>
+            <LineChart fx:id="speedChart" createSymbols="false" animated="false" VBox.vgrow="ALWAYS">
+                <xAxis> <CategoryAxis side="BOTTOM" tickLabelFill="white" /> </xAxis>
+                <yAxis> <NumberAxis side="LEFT" tickLabelFill="white" /> </yAxis>
+            </LineChart>
+        </VBox>
+    </center>
+
+    <!-- 底部：实时审计日志 -->
+    <bottom>
+        <VBox spacing="5" style="-fx-padding: 10;">
+            <Label text="📜 系统审计日志" style="-fx-text-fill: white; -fx-font-size: 12;"/>
+            <TextArea fx:id="logArea" prefHeight="150.0" editable="false"
+                      style="-fx-control-inner-background: #1e272e; -fx-text-fill: #0be881; -fx-font-family: 'Consolas';"/>
+        </VBox>
+    </bottom>
+</BorderPane>

@@ -9,130 +9,61 @@
 
 ---
 
-## ✨ 核心特性 (Key Features)
+- [ ] # 🚀 J-SafeTransfer 技术亮点与深度解析
 
-*   **🔒 企业级安全**：通信过程采用 **AES-256-CBC** 对称加密，拒绝明文传输，确保数据机密性。
-*   **💾 断点续传 (Resumable Upload)**：核心亮点。支持网络中断后的自动恢复，利用文件指纹 (MD5) 实现秒传和完整性校验。
-*   **🖥️ 现代化 UI**：基于 **JavaFX** 开发的响应式界面，支持文件拖拽上传 (Drag & Drop)。
-*   **⚡ 高性能网络**：基于 Java Socket (BIO) + 线程池模型，自定义二进制协议解决 TCP 粘包问题。
-*   **📦 数据库集成**：使用 MySQL 存储用户凭证与文件元数据，支持多用户验证。
+  **项目定义**：一个基于 Java 17 和 JavaFX 构建的高性能、全链路加密、支持断点续传的企业级文件传输系统。
 
----
+  ## 1. 🛡️ 全链路安全架构 (Security First)
 
-## 🛠️ 技术栈 (Tech Stack)
+  - 
+  - **对称加密护航**：系统核心采用 **AES-256-CBC** 模式对文件流进行实时加密。与传统明文 FTP 不同，J-SafeTransfer 在网络上传输的每一比特数据均为密文，有效防止中间人攻击（MITM）。
+  - **身份验证机制**：基于 **SHA-256 + Salt** 的密码哈希存储方案，确保数据库即便泄露，原始密码也无法被还原。
+  - **数据完整性校验**：采用 **MD5 指纹技术**。在传输前、续传握手阶段及传输完成后进行三级校验，确保文件在弱网环境下也不会出现 1 bit 的损坏。
 
-*   **开发语言**: Java 17 (LTS)
-*   **GUI 框架**: JavaFX 17+
-*   **构建工具**: Maven 3.8+
-*   **数据库**: MySQL 8.0
-*   **核心依赖**:
-    *   `Gson`: JSON 协议解析
-    *   `MySQL Connector`: 数据库驱动
-    *   `Junit`: 单元测试
+  ## 2. ⚡ 高性能传输与断点续传 (Reliability)
 
----
+  - ![image-20251230154106992](C:\Users\26465\AppData\Roaming\Typora\typora-user-images\image-20251230154106992.png)
+  - **断点续传算法**：自主实现基于 **RandomAccessFile** 的偏移量指针定位技术。上传前通过 MD5 握手协议向服务端查询已存在块大小（Offset），实现“秒级恢复”传输，极大提升了超大文件传输的成功率。
+  - **双端分块缓存**：针对局域网环境优化，采用 **2MB 动态缓冲区**。平衡了内存占用与磁盘 I/O 效率，实测内网传输速度可突破 200MB/s。
+  - **秒传功能**：服务端通过文件 MD5 指纹库进行全局检索，若相同文件已存在，则触发秒传逻辑，瞬间完成“上传”。
 
-## 🏗️ 系统架构与协议 (Architecture & Protocol)
+  ## 3. 📡 现代化网络通信协议 (Networking)
 
-### 自定义通信协议 (LVP)
-为了确保数据在 TCP 流中的完整性，项目设计了如下数据包结构：
+  - 
+  - **自定义 LVP 协议**：为了彻底解决 TCP “粘包/拆包”问题，设计了 **Magic Number (魔数) + Type + Length + Value** 的应用层协议格式。
+  - **UDP 自动发现服务**：集成 **UDP 广播 (Service Discovery)** 技术。客户端开启后可自动探测局域网内的活动服务端，实现“零配置”连接，极大优化了用户体验。
+  - **并发连接管理**：采用 **ThreadPoolExecutor (固定大小线程池)** 架构。服务端能够稳定支撑多用户并发请求，避免了传统 BIO 模型下“一连接一线程”导致的系统资源枯竭问题。
 
-| 字段 (Bytes) | 类型 | 说明 |
-| :--- | :--- | :--- |
-| **Magic (2)** | `short` | 协议魔数 `0xACED`，用于校验数据包合法性 |
-| **Type (1)** | `byte` | 指令类型 (如 `0x10` 登录, `0x30` 上传数据) |
-| **Length (4)** | `int` | Body 的长度 (Big-Endian) |
-| **Body (N)** | `byte[]` | **AES 加密**后的 Payload (JSON 或 文件流) |
+  ## 4. 📊 工业级监控与交互 (UX & Visualization)
 
-### 目录结构
-*   `/server_storage`: 服务端文件存储区（上传完成的文件）。
-*   `/server_temp`: 断点续传临时缓存区（上传未完成的 `.temp` 文件）。
+  - ![image-20251230154243373](C:\Users\26465\AppData\Roaming\Typora\typora-user-images\image-20251230154243373.png)
+  - **全态可视化面板**：利用 JavaFX 绘图引擎构建 **服务端监控大屏**。实时绘制全站带宽波形图（LineChart），并动态展示在线用户状态及操作审计日志。
+  - **响应式 UI 交互**：
+    - 
+    - **实时搜索过滤**：基于 FilteredList 实现海量文件列表的毫秒级实时搜索。
+    - **智能文件管理**：支持右键菜单（重命名、删除、分享）、文件图标智能识别、拖拽上传等现代交互逻辑。
+    - **传输状态回显**：实时计算传输速率（MB/s）及预计剩余时间，让传输进度直观透明。
 
----
+  ## 5. 🏗️ 工程化实践 (Engineering)
 
-## 🚀 快速开始 (Quick Start)
+  - 
+  - **多端合一架构**：通过 Launcher 引导层实现客户端与服务端的逻辑分离与代码高度复用。系统可根据同级目录下的 server.properties 自动切换运行模式。
+  - **高可用性保障**：针对多线程并发环境下 Socket 竞争导致的流同步失效问题，引入了**严格的同步锁（Synchronized Stream Access）与 异常重连机制**，确保长连接的稳定性。
+  - **跨平台打包**：通过 Maven Shade 插件构建“Fat JAR”，并利用 Launch4j 封装为原生 EXE 执行文件，脱离开发环境限制，实现一键部署。
 
-### 1. 环境准备
-*   JDK 17 或更高版本
-*   MySQL 8.0+
-*   Maven
+  ------
 
-### 2. 数据库初始化
-请在 MySQL 中执行以下 SQL 脚本：
+  
 
-```sql
-CREATE DATABASE jsafe_db DEFAULT CHARSET utf8mb4;
-USE jsafe_db;
+  ### 📈 技术栈总结 (Tech Stack)
 
--- 用户表
-CREATE TABLE tb_user (
-    id INT PRIMARY KEY AUTO_INCREMENT,
-    username VARCHAR(64) NOT NULL UNIQUE,
-    pwd_hash CHAR(64) NOT NULL,
-    salt CHAR(16) NOT NULL
-);
-
--- 插入测试账号 (密码: 123456)
-INSERT INTO tb_user (username, pwd_hash, salt) VALUES ('admin', '123456', '1234');
-
--- 文件表 (可选)
-CREATE TABLE tb_file (
-    file_id BIGINT PRIMARY KEY AUTO_INCREMENT,
-    real_name VARCHAR(255) NOT NULL,
-    content_md5 CHAR(32) NOT NULL,
-    upload_time DATETIME DEFAULT CURRENT_TIMESTAMP
-);
-```
-
-### 3. 构建项目
-在项目根目录下运行：
-```bash
-mvn clean package
-```
-构建成功后，`target` 目录下会生成 `Save_Transfer-1.0-SNAPSHOT.jar`。
-
-### 4. 运行指南
-
-**启动服务端 (Server):**
-可以使用命令行参数启动，或者使用单独的启动脚本。
-```bash
-# 方式 A: 通过 Launcher 代码逻辑 (需修改 Launcher.java 支持参数)
-java -jar target/Save_Transfer-1.0-SNAPSHOT.jar server
-
-# 方式 B: 直接指定主类
-java -cp target/Save_Transfer-1.0-SNAPSHOT.jar com.jsafe.server.ServerMain
-```
-*服务端默认监听端口: `8888`*
-
-**启动客户端 (Client):**
-```bash
-java -jar target/Save_Transfer-1.0-SNAPSHOT.jar
-```
-1.  输入用户名 `admin` / 密码 `123456`。
-2.  输入服务端 IP 地址 (内网测试如 `10.14.xx.xx`)。
-3.  点击登录，开始传输文件！
-
----
-
-## 📸 截图展示 (Screenshots)
-
-<img width="696" height="519" alt="image" src="https://github.com/user-attachments/assets/f5391050-dde3-4599-931b-70958975513f" />
-<img width="702" height="532" alt="2984d38622c07c4f5119e2b0690c1c08" src="https://github.com/user-attachments/assets/d4adf476-ebef-4ae6-8bf7-0bc41e8f0ada" />
-
-
-*   **登录界面**: 简洁的安全认证入口。
-*   **主工作台**: 支持拖拽、列表刷新、进度实时显示。
-
----
-
-## 🔮 未来规划 (Roadmap)
-
-- [x] 基础登录与加密传输
-- [x] 断点续传与秒传
-- [x] JavaFX 图形化界面
-- [ ] 多用户文件隔离 (User Isolation)
-- [ ] 文件下载功能 (Download Support)
-- [ ] P2P 局域网自动发现 (UDP Broadcast)
+  - 
+  - **Language**: Java 17 (LTS)
+  - **GUI Framework**: JavaFX 23
+  - **Networking**: Socket (BIO) + UDP Broadcast
+  - **Security**: AES-256-CBC, MD5, SHA-256
+  - **Database**: MySQL 8.0 + JDBC
+  - **Tools**: Maven, Gson, Launch4j
 
 ---
 

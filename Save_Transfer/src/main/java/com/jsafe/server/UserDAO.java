@@ -56,4 +56,20 @@ public class UserDAO {
         }
         return false;
     }
+
+    public int getUserId(String username) {
+        String sql = "SELECT id FROM tb_user WHERE username = ?";
+        try (Connection conn = DBUtil.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, username);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt("id");
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return -1; // 没找到
+    }
 }

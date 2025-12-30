@@ -15,4 +15,16 @@ public interface Command {
 
     byte REQ_LIST_FILES = 0x40;
     byte RESP_LIST_FILES = 0x41;
+
+    byte REQ_DOWNLOAD = 0x50;       // 客户端请求下载
+    byte RESP_DOWNLOAD_START = 0x51; // 服务端告知：准备好了，文件大小是多少
+    byte RESP_DOWNLOAD_DATA = 0x52;  // 服务端发送：数据块
+
+    byte REQ_SHARE = 0x60;
+    byte RESP_SHARE = 0x61;
+
+    byte REQ_DELETE = 0x70;
+    byte RESP_DELETE = 0x71;
+    byte REQ_RENAME = 0x72;
+    byte RESP_RENAME = 0x73;
 }

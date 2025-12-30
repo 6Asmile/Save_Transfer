@@ -1,0 +1,54 @@
+/* 全局背景与字体 */
+.root {
+    -fx-font-family: "Microsoft YaHei", "Segoe UI";
+    -fx-background-color: #f7f8bb;
+}
+
+/* 按钮基础样式 */
+.button {
+    -fx-background-radius: 5;
+    -fx-cursor: hand;
+    -fx-transition: 0.3s;
+}
+
+.button:hover {
+    -fx-opacity: 0.85;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 5, 0, 0, 2);
+}
+
+/* 列表美化 */
+.list-view {
+    -fx-background-radius: 10;
+    -fx-border-color: rgba(197, 246, 246, 0.51);
+    -fx-border-radius: 10;
+    -fx-background-color: rgba(199, 239, 238, 0.49);
+    -fx-padding: 5;
+}
+
+.list-cell:filled:selected {
+    -fx-background-color: #e3f2fd;
+    -fx-text-fill: #007bff;
+}
+
+.list-cell:filled:hover {
+    -fx-background-color: #f5f6fa;
+}
+
+/* 进度条美化 */
+.progress-bar .bar {
+    -fx-background-color: linear-gradient(to right, #4cd137, #44bd32);
+    -fx-background-radius: 10;
+}
+
+.progress-bar .track {
+    -fx-background-color: #dcdde1;
+    -fx-background-radius: 10;
+}
+
+/* 文本域（日志区） */
+.text-area {
+    -fx-control-inner-background: rgba(70, 209, 55, 0.11);
+    -fx-text-fill: #121111;
+    -fx-font-family: "Consolas";
+    -fx-background-radius: 8;
+}
