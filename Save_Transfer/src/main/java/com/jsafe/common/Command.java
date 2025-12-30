@@ -3,6 +3,9 @@ package com.jsafe.common;
 public interface Command {
     byte REQ_AUTH = 0x10;
     byte RESP_AUTH = 0x11;
+    byte REQ_REGISTER = 0x13;
+    byte RESP_REGISTER = 0x14;
+
 
     byte REQ_CHECK_RESUME = 0x20;
     byte RESP_CHECK_RESUME = 0x21;

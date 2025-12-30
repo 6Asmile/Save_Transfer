@@ -73,7 +73,7 @@ public class ServerMain {
 
                     switch (packet.getType()) {
                         case Command.REQ_AUTH -> handleLogin(packet, dos);
-                        // 新增处理逻辑
+                        case Command.REQ_REGISTER -> handleRegister(packet, dos);
                         case Command.REQ_CHECK_RESUME -> handleCheckResume(packet, dos);
                         case Command.REQ_UPLOAD_DATA -> handleUploadData(packet, dos);
                         case Command.REQ_LIST_FILES -> handleListFiles(dos);
@@ -195,7 +195,7 @@ public class ServerMain {
             }
         }
 
-        // --- 文件列表方法 ---
+        // 3.文件列表
         private void handleListFiles(DataOutputStream dos) throws IOException {
             try {
                 File dir = new File(STORAGE_DIR);
@@ -221,5 +221,38 @@ public class ServerMain {
                 e.printStackTrace();
             }
         }
+
+        // 4.注册
+        private void handleRegister(Packet packet, DataOutputStream dos) throws IOException {
+            try {
+                // 1. 解密
+                byte[] decrypted = AESUtil.decrypt(packet.getBody());
+                String jsonStr = new String(decrypted, StandardCharsets.UTF_8);
+                System.out.println("收到注册请求: " + jsonStr);
+
+                // 2. 解析 JSON
+                JsonObject req = new Gson().fromJson(jsonStr, JsonObject.class);
+                String u = req.get("u").getAsString();
+                String p = req.get("p").getAsString();
+
+                // 3. 写入数据库
+                UserDAO dao = new UserDAO();
+                boolean success = dao.register(u, p);
+
+                // 4. 返回结果
+                String msg = success ? "注册成功" : "注册失败(用户名可能已存在)";
+                int code = success ? 200 : 409;
+
+                String respJson = String.format("{\"code\":%d, \"msg\":\"%s\"}", code, msg);
+
+                // 5. 加密发送
+                byte[] encryptedResp = AESUtil.encrypt(respJson.getBytes(StandardCharsets.UTF_8));
+                new Packet(Command.RESP_REGISTER, encryptedResp).write(dos);
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
     }
 }

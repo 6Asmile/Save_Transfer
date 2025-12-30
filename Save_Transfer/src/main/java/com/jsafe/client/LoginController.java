@@ -114,4 +114,64 @@ public class LoginController {
             }
         }).start();
     }
+    @FXML
+    protected void onRegisterClick() {
+        String u = usernameField.getText();
+        String p = passwordField.getText();
+        String ip = ipField.getText(); // 确保你之前加了 ipField
+
+        if (u.isEmpty() || p.isEmpty()) {
+            messageLabel.setText("注册需填写用户名和密码");
+            return;
+        }
+
+        new Thread(() -> {
+            try {
+                NetworkManager net = NetworkManager.getInstance();
+                // 注册前也要先连上服务器
+                net.connect(ip, 8888);
+
+                // 1. 发送注册包
+                String json = String.format("{\"u\":\"%s\", \"p\":\"%s\"}", u, p);
+                net.sendEncryptedJson(Command.REQ_REGISTER, json);
+
+                // 2. 等待响应
+                Packet resp = net.readPacket();
+
+                // 3. 处理结果
+                Platform.runLater(() -> {
+                    try {
+                        if (resp.getType() == Command.RESP_REGISTER) {
+                            byte[] data = AESUtil.decrypt(resp.getBody());
+                            String respStr = new String(data, StandardCharsets.UTF_8);
+
+                            JsonObject obj = new Gson().fromJson(respStr, JsonObject.class);
+                            int code = obj.get("code").getAsInt();
+                            String msg = obj.get("msg").getAsString();
+
+                            if (code == 200) {
+                                showAlert("注册成功", "账号 " + u + " 已创建，请直接点击登录。");
+                            } else {
+                                messageLabel.setText("错误: " + msg);
+                            }
+                        }
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                });
+
+            } catch (Exception e) {
+                Platform.runLater(() -> messageLabel.setText("连接失败: " + e.getMessage()));
+            }
+        }).start();
+    }
+
+    // 注册辅助方法：弹窗提示
+    private void showAlert(String title, String content) {
+        javafx.scene.control.Alert alert = new javafx.scene.control.Alert(javafx.scene.control.Alert.AlertType.INFORMATION);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(content);
+        alert.showAndWait();
+    }
 }

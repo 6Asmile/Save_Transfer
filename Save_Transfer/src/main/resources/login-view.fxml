@@ -8,6 +8,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
+<?import javafx.scene.layout.HBox?>
 <VBox alignment="CENTER" spacing="20.0" xmlns:fx="http://javafx.com/fxml"
       fx:controller="com.jsafe.client.LoginController"
       style="-fx-background-color: #f0f2f5;">
@@ -28,8 +29,19 @@
     <PasswordField fx:id="passwordField" promptText="密码" text="123456"
                    style="-fx-background-radius: 5; -fx-padding: 10;"/>
     <TextField fx:id="ipField" promptText="服务器IP" text="127.0.0.1" />
-    <Button text="安全登录" onAction="#onLoginButtonClick" defaultButton="true"
-            style="-fx-background-color: #007bff; -fx-text-fill: white; -fx-font-weight: bold; -fx-padding: 10 20; -fx-background-radius: 5; -fx-cursor: hand;"/>
+    <HBox spacing="15.0" alignment="CENTER">
+        <!-- 登录按钮 (实心蓝) -->
+        <Button text="安全登录" onAction="#onLoginButtonClick" defaultButton="true"
+                prefWidth="120.0"
+                style="-fx-background-color: #007bff; -fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 14px; -fx-background-radius: 5; -fx-padding: 10; -fx-cursor: hand;"/>
+
+        <!-- 注册按钮 (空心蓝) -->
+        <Button text="注册账号" onAction="#onRegisterClick"
+                prefWidth="120.0"
+                style="-fx-background-color: white; -fx-border-color: #007bff; -fx-border-radius: 5; -fx-background-radius: 5; -fx-text-fill: #007bff; -fx-font-size: 14px; -fx-padding: 9; -fx-cursor: hand;"/>
+    </HBox>
+
+
 
     <Label fx:id="messageLabel" textFill="red"/>
 </VBox>

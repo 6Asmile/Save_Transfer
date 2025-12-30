@@ -36,4 +36,24 @@ public class UserDAO {
         }
         return false;
     }
+    //注册
+    public boolean register(String username, String password) {
+        // 注意：这里用了 IGNORE，如果用户名重复，会忽略并返回 0，避免报错
+        String sql = "INSERT IGNORE INTO tb_user (username, pwd_hash, salt) VALUES (?, ?, ?)";
+
+        try (Connection conn = DBUtil.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setString(1, username);
+            ps.setString(2, password); // 暂时存明文，后面你可以加 HashUtil.sha256(password)
+            ps.setString(3, "1234");   // 暂时写死 Salt
+
+            int rows = ps.executeUpdate();
+            return rows > 0; // 如果影响行数 > 0，说明注册成功
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
 }
