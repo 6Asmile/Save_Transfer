@@ -24,6 +24,7 @@ public class LoginController {
     private Label messageLabel;
     @FXML
     private TextField ipField; // 绑定控件
+
     @FXML
     protected void onLoginButtonClick() {
         String u = usernameField.getText();
@@ -35,14 +36,17 @@ public class LoginController {
             return;
         }
 
-        // 为了不卡死界面，网络请求要在子线程做
-        new Thread(() -> {
+        // ：使用 NetworkManager 的线程池，而不是 new Thread
+        NetworkManager.getInstance().runAsync(() -> {
             try {
-                // 1. 获取网络实例并连接 (如果还没连)
+                // 1. 获取网络实例并连接
                 NetworkManager net = NetworkManager.getInstance();
-//                net.connect("127.0.0.1", 8888);
-                net.connect(ip, 8888); // 使用动态 IP
-                // 2. 发送登录包
+                net.connect(ip, 8888);
+
+                // 执行 RSA + AES 安全握手 (必须在发数据前调用)
+                net.performSecureHandshake();
+
+                //  发送登录包 (内部会自动使用握手后的 SessionKey 加密)
                 String loginJson = String.format("{\"u\":\"%s\", \"p\":\"%s\"}", u, p);
                 net.sendEncryptedJson(Command.REQ_AUTH, loginJson);
 
@@ -53,7 +57,8 @@ public class LoginController {
                 Platform.runLater(() -> {
                     try {
                         if (resp.getType() == Command.RESP_AUTH) {
-                            byte[] decrypted = AESUtil.decrypt(resp.getBody());
+                            // 解密时传入动态 SessionKey
+                            byte[] decrypted = AESUtil.decrypt(resp.getBody(), net.getSessionKey());
                             String jsonStr = new String(decrypted, StandardCharsets.UTF_8);
 
                             JsonObject jsonObj = new Gson().fromJson(jsonStr, JsonObject.class);
@@ -62,13 +67,12 @@ public class LoginController {
                             if (code == 200) {
                                 messageLabel.setStyle("-fx-text-fill: green;");
                                 messageLabel.setText("✅ 登录成功！正在跳转...");
-                                // TODO: 这里下一步要跳转到主界面 (MainView)
-                                // --- 新增跳转逻辑 ---
-                                // 1. 关闭登录窗口
+
+                                // 关闭登录窗口
                                 Stage loginStage = (Stage) usernameField.getScene().getWindow();
                                 loginStage.close();
 
-                                // 2. 打开主窗口
+                                // 打开主窗口
                                 try {
                                     FXMLLoader loader = new FXMLLoader(getClass().getResource("/main-view.fxml"));
                                     Stage mainStage = new Stage();
@@ -85,7 +89,7 @@ public class LoginController {
                             }
                         }
                     } catch (Exception e) {
-                        messageLabel.setText("解密失败");
+                        messageLabel.setText("解密失败: " + e.getMessage());
                         e.printStackTrace();
                     }
                 });
@@ -93,43 +97,50 @@ public class LoginController {
             } catch (Exception e) {
                 e.printStackTrace();
                 Platform.runLater(() -> messageLabel.setText("连接错误: " + e.getMessage()));
+                // 出现错误时关闭连接，确保下次重试能重新握手
+                NetworkManager.getInstance().close();
             }
-        }).start();
+        });
     }
+
     @FXML
     public void initialize() {
         // 优先填入配置文件里的 IP
         if (!NetworkManager.DEFAULT_SERVER_IP.isEmpty()) {
             ipField.setText(NetworkManager.DEFAULT_SERVER_IP);
         }
-        // 界面打开时，自动在后台搜一下
-        new Thread(() -> {
+
+        // 后台搜索也放入线程池
+        NetworkManager.getInstance().runAsync(() -> {
             String ip = UDPClient.searchServer();
             if (ip != null) {
                 // 回到 UI 线程更新输入框
                 Platform.runLater(() -> {
                     ipField.setText(ip); // 自动填入 IP
-                    // 甚至可以自动把“连接”按钮变绿，或者弹个提示
                 });
             }
-        }).start();
+        });
     }
+
     @FXML
     protected void onRegisterClick() {
         String u = usernameField.getText();
         String p = passwordField.getText();
-        String ip = ipField.getText(); // 确保你之前加了 ipField
+        String ip = ipField.getText();
 
         if (u.isEmpty() || p.isEmpty()) {
             messageLabel.setText("注册需填写用户名和密码");
             return;
         }
 
-        new Thread(() -> {
+        // 注册逻辑也放入线程池
+        NetworkManager.getInstance().runAsync(() -> {
             try {
                 NetworkManager net = NetworkManager.getInstance();
-                // 注册前也要先连上服务器
                 net.connect(ip, 8888);
+
+                // 注册也需要安全握手 (否则密码是明文发的)
+                net.performSecureHandshake();
 
                 // 1. 发送注册包
                 String json = String.format("{\"u\":\"%s\", \"p\":\"%s\"}", u, p);
@@ -142,7 +153,8 @@ public class LoginController {
                 Platform.runLater(() -> {
                     try {
                         if (resp.getType() == Command.RESP_REGISTER) {
-                            byte[] data = AESUtil.decrypt(resp.getBody());
+                            // 解密使用动态 Key
+                            byte[] data = AESUtil.decrypt(resp.getBody(), net.getSessionKey());
                             String respStr = new String(data, StandardCharsets.UTF_8);
 
                             JsonObject obj = new Gson().fromJson(respStr, JsonObject.class);
@@ -162,8 +174,9 @@ public class LoginController {
 
             } catch (Exception e) {
                 Platform.runLater(() -> messageLabel.setText("连接失败: " + e.getMessage()));
+                NetworkManager.getInstance().close();
             }
-        }).start();
+        });
     }
 
     // 注册辅助方法：弹窗提示

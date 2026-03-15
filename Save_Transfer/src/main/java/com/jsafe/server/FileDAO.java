@@ -6,6 +6,7 @@ import java.sql.PreparedStatement;
 public class FileDAO {
 
     public boolean addFile(String realName, String savePath, long size, String md5, int uploaderId) {
+        // 标准 SQL，兼容两者
         String sql = "INSERT INTO tb_file (real_name, save_path, size_bytes, content_md5, uploader_id) VALUES (?, ?, ?, ?, ?)";
 
         try (Connection conn = DBUtil.getConnection();
@@ -37,7 +38,8 @@ public class FileDAO {
             return false;
         }
     }
-    //更新记录
+
+    // 更新记录
     public boolean updateFileName(String oldName, String newName, int uploaderId) {
         String sql = "UPDATE tb_file SET real_name = ? WHERE real_name = ? AND uploader_id = ?";
         try (Connection conn = DBUtil.getConnection();
@@ -46,6 +48,9 @@ public class FileDAO {
             ps.setString(2, oldName);
             ps.setInt(3, uploaderId);
             return ps.executeUpdate() > 0;
-        } catch (Exception e) { e.printStackTrace(); return false; }
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
     }
 }

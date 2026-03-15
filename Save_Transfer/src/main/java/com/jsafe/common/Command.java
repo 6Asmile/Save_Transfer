@@ -1,6 +1,11 @@
 package com.jsafe.common;
 
 public interface Command {
+
+    byte REQ_RSA_KEY = 0x01;  // 请求RSA公钥
+    byte RESP_RSA_KEY = 0x02; // 返回RSA公钥
+    byte SET_AES_KEY = 0x03;  // 客户端提交加密后的AES密钥
+
     byte REQ_AUTH = 0x10;
     byte RESP_AUTH = 0x11;
     byte REQ_REGISTER = 0x13;

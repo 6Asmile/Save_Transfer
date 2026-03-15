@@ -2,6 +2,7 @@ package com.jsafe.common;
 
 import java.security.MessageDigest;
 import java.nio.charset.StandardCharsets;
+import java.security.SecureRandom;
 import java.util.Base64;
 import java.io.File;
 import java.io.FileInputStream;
@@ -49,5 +50,16 @@ public class HashUtil {
             e.printStackTrace();
             return null;
         }
+    }
+    // 生成随机 16 位盐值
+    public static String generateSalt() {
+        SecureRandom random = new SecureRandom();
+        byte[] salt = new byte[8]; // 8字节=16位Hex
+        random.nextBytes(salt);
+        StringBuilder sb = new StringBuilder();
+        for (byte b : salt) {
+            sb.append(String.format("%02x", b));
+        }
+        return sb.toString();
     }
 }

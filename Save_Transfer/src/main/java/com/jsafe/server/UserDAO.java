@@ -19,16 +19,10 @@ public class UserDAO {
                 if (rs.next()) {
                     String dbHash = rs.getString("pwd_hash");
                     String salt = rs.getString("salt");
-
-                    // 核心逻辑：计算用户输入的密码 Hash，看是否与数据库一致
-                    // 假设前端传来的已经是明文密码（实际项目前端应先Hash一次，这里为了演示简单）
-                    // 逻辑：Hash(Pass + Salt) == DB_Hash ?
-                    // 注意：这里为了方便测试，我们暂时假设数据库存的是直出的 Hash，暂时不加 Salt 逻辑
-                    // 你之前的 INSERT 语句填的是 'DUMMY_HASH'，我们需要去数据库手动改一下，或者写个注册逻辑
-
-                    // 简单起见，我们先比对明文（假设数据库里 pwd_hash 存的就是 '123456'）
-                    // 等跑通了再换回 HashUtil.sha256
-                    return password.equals(dbHash);
+                    // 用查出的盐，对用户输入的密码进行相同的哈希运算
+                    String calculatedHash = HashUtil.sha256(password + salt);
+                    // 比对计算结果
+                    return calculatedHash.equals(dbHash);
                 }
             }
         } catch (Exception e) {
@@ -36,17 +30,28 @@ public class UserDAO {
         }
         return false;
     }
-    //注册
+
+    // 注册
     public boolean register(String username, String password) {
-        // 注意：这里用了 IGNORE，如果用户名重复，会忽略并返回 0，避免报错
-        String sql = "INSERT IGNORE INTO tb_user (username, pwd_hash, salt) VALUES (?, ?, ?)";
+        // 1. 生成唯一随机盐
+        String salt = HashUtil.generateSalt();
+        // 2. 计算加盐后的哈希值
+        String pwdHash = HashUtil.sha256(password + salt);
+
+        // 🌟 兼容性修改：MySQL 用 INSERT IGNORE，SQLite 用 INSERT OR IGNORE
+        String sql;
+        if (DBUtil.isMySQL()) {
+            sql = "INSERT IGNORE INTO tb_user (username, pwd_hash, salt) VALUES (?, ?, ?)";
+        } else {
+            sql = "INSERT OR IGNORE INTO tb_user (username, pwd_hash, salt) VALUES (?, ?, ?)";
+        }
 
         try (Connection conn = DBUtil.getConnection();
              PreparedStatement ps = conn.prepareStatement(sql)) {
 
             ps.setString(1, username);
-            ps.setString(2, password); // 暂时存明文，后面你可以加 HashUtil.sha256(password)
-            ps.setString(3, "1234");   // 暂时写死 Salt
+            ps.setString(2, pwdHash);
+            ps.setString(3, salt);
 
             int rows = ps.executeUpdate();
             return rows > 0; // 如果影响行数 > 0，说明注册成功
