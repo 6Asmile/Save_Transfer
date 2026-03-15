@@ -64,7 +64,7 @@
 
 **[架构图：安全握手流程]**
 
-![](docs/images/3.1RSA+AES 混合加密握手 (Sequence Diagram).png)
+![](docs/images/RSA,AES混合加密握手Sequence Diagram.png)
 
 ### 3.2 零信任身份与完整性校验
 *   **抗抵赖存储**：数据库仅存储密码的 **SHA-256 哈希值** 配合 **随机 Salt (盐)**，即使数据库泄露，攻击者也无法通过彩虹表反推原始密码。
@@ -84,7 +84,7 @@
 
 **[时序图：断点续传逻辑]**
 
-![](docs/images/4.1断点续传与完整性校验 (Sequence Diagram).png)
+![](docs/images/断点续传与完整性校验SequenceDiagram.png)
 
 ### 4.2 性能调优实践
 *   **自适应缓冲区**：I/O Buffer 根据网络状况在 **64KB ~ 2MB** 之间动态调整，大幅减少系统调用次数（System Call）。
